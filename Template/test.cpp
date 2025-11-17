@@ -32,6 +32,7 @@ const int N = 1e5 + 5;
 const int LG = 17;
 const ll INF = 1e17 + 7;
 const int inf = 1e9 + 7;
+const int MOD = 1e9 + 7;
 
 void create(){
     ofstream cout(name".inp");
