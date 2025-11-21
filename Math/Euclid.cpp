@@ -55,7 +55,49 @@ namespace Standard_GCD{
 }
 
 namespace Extended_Euclid{
-	// Pending
+	// Tìm 1 cặp nghiệm (x, y) của phương trình ax + by = gcd(a, b)
+	// Giả sử kết quả trả về là (x0, y0), họ nghiệm của phương trình sẽ là (x_0+kb/d,y_0-ka/d) với k∈Z.
+	// Phương trình tổng quát ax + by = d chỉ có nghiệm khi d chia hết cho gcd(a, b).
+	pii euclid(int a, int b){
+        if (!b) return make_pair(1, 0);
+        pii r = euclid(b, a % b);
+        return mp(r.se, r.fi - a / b * r.se);
+    }
+    void solve(int n, int a, int b){ // ax + by = n
+		auto [x, y] = euclid(a, b);
+		int g = ax + by;
+		assert(n % g != 0); // VÔ NGHIỆM
+
+		a /= g; b /= g; n /= g;
+		x = x * n; y = y * n;
+		
+		// Non-negative x and y
+		if(x < 0){
+			int k = (-x + b - 1)/b;
+			x += k * b;
+			y -= k * a;
+		}
+		if(y < 0){
+			int k = (y - a + 1) / a;
+			x += k * b;
+			y -= k * a;
+		}
+
+		assert(x < 0 || y < 0); //VÔ NGHIỆM
+		
+		// Smallest x + y
+		int x1 = x % b;
+		int y1 = y + x/b * a;
+		int y2 = y % a;
+		int x2 = x + y/a * b;
+
+		if (x1 + y1 < x2 + y2){
+			// x1 + y1 is smaller
+		}
+		else{
+			// x2 + y2 is smaller
+		}
+	}
 }
 
 signed main(){

@@ -30,61 +30,29 @@ const ll INF = 1e17 + 7;
 const int inf = 1e9 + 7;
 const int MOD = 1e9 + 7;
 
-namespace smallN{
-	const int N = 1000 + 5;
-	int C[N][N];
-
-	void build(int n){
-		FOR(i, 0, n){
-			C[i][0] = 1;
-			FOR(j, 1, i - 1)
-				C[i][j] = (C[i - 1][j] + C[i - 1][j - 1]) % MOD;
+namespace PhiHamEuler{
+	int eulerPhi(int n) { // = n (1-1/p1) ... (1-1/pn)
+		if (n == 0) return 0;
+		int ans = n;
+		for (int x = 2; x * x <= n; ++x) if (n % x == 0){
+			ans -= ans / x;
+			while (n % x == 0) n /= x;
 		}
-	}
-	int query(int n, int k){
-		if (k > n) return 0;
-		return C[n][k];
-	}
-}
-
-namespace Standard_Combinatorics{
-	// Assume MOD is a prime number and n < MOD
-	// else use other methods (i.e. : Diophantine equation,..) to calculate inverse modulo
-
-	int fact[N], inv[N];
-
-	int binPow(int a, int b){
-		int ans = 1;
-		while(b > 0){
-			if (b & 1) ans = 1ll * ans * a % MOD;
-			a = 1ll * a * a % MOD; b >>= 1;
-		}
+		if (n > 1) ans -= ans / n;
 		return ans;
 	}
-	void build(int n){
-		fact[0] = 1;
-		FOR(i, 1, n) fact[i] = 1ll * fact[i - 1] * i % MOD;
-
-		inv[n] = binPow(fact[n], MOD - 2);
-		FORD(i, n, 1) inv[i - 1] = 1ll * inv[i] * i % MOD;
-	}
-	int query(int n, int k){
-		if (k > n) return 0;
-		return 1ll * fact[n] * inv[k] % MOD * inv[n - k] % MOD;
-	}
-}
-
-namespace Lucas{
-	// Assume MOD is a prime number and n > MOD
-
-	int query(int n, int k){
-	    if (k > n) return 0;
-	    int res = 1;
-	    while (n > 0){
-	        res = 1LL * res * Standard_Combinatorics :: query(n % MOD, k % MOD) % MOD;
-	        n /= MOD; k /= MOD;
-	    }
-	    return res;
+	
+	const int N = 1e5;
+	int f[N + 1];
+	void buildPhiArray(){ // f[i]: eulerPhi(i)
+		for(int i = 1; i <= N; i++){
+			if(i & 1) f[i] = i;
+			else f[i] = i / 2;
+		}
+		for(int i = 3; i <= N; i++) if (f[i] == i){
+			for(int j = i; j <= N; j += i)
+				f[j] = f[j] / i * (i - 1);
+		}	
 	}
 }
 

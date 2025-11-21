@@ -1,4 +1,4 @@
-// Source : 
+// Source : https://oj.vnoi.info/problem/latgach4
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -25,69 +25,49 @@ template<class T> bool maximize(T &a, T b){ return (a < (b) ? a = (b), 1 : 0); }
 template<class T> T Abs(const T &x) { return (x<0?-x:x);}
 
 const int N = 1e5 + 5;
-const int LG = 17;
+const int LG = 29;
 const ll INF = 1e17 + 7;
 const int inf = 1e9 + 7;
-const int MOD = 1e9 + 7;
+const int MOD = 111539786;
 
-namespace smallN{
-	const int N = 1000 + 5;
-	int C[N][N];
+struct Matrix{
+	int n, m, mt[3][3];
 
-	void build(int n){
-		FOR(i, 0, n){
-			C[i][0] = 1;
-			FOR(j, 1, i - 1)
-				C[i][j] = (C[i - 1][j] + C[i - 1][j - 1]) % MOD;
+	Matrix (int _n = 0, int _m = 0){
+		n = _n; m = _m;
+		memset(mt, 0, sizeof(mt));
+	}
+
+	Matrix operator * (const Matrix& other) const{
+		Matrix res(n, other.m);
+		FOR(i, 1, n) FOR(j, 1, other.m) FOR(k, 1, m){
+			res.mt[i][j] += 1ll * mt[i][k] * other.mt[k][j] % MOD;
+			if (res.mt[i][j] >= MOD) res.mt[i][j] -= MOD;
 		}
+		return res;
 	}
-	int query(int n, int k){
-		if (k > n) return 0;
-		return C[n][k];
-	}
+} A[LG + 1];
+
+void process(){
+	A[0] = Matrix(2, 2);
+	A[0].mt[1][2] = A[0].mt[2][1] = A[0].mt[2][2] = 1;
+	FOR(j, 1, LG) A[j] = A[j - 1] * A[j - 1];
 }
-
-namespace Standard_Combinatorics{
-	// Assume MOD is a prime number and n < MOD
-	// else use other methods (i.e. : Diophantine equation,..) to calculate inverse modulo
-
-	int fact[N], inv[N];
-
-	int binPow(int a, int b){
-		int ans = 1;
-		while(b > 0){
-			if (b & 1) ans = 1ll * ans * a % MOD;
-			a = 1ll * a * a % MOD; b >>= 1;
-		}
-		return ans;
+Matrix fastPow(int b){
+	Matrix res(2, 2); res.mt[1][1] = res.mt[2][2] = 1;
+	while(b > 0){
+		int j = __builtin_ctz(b);
+		res = res * A[j];
+		b -= MASK(j);
 	}
-	void build(int n){
-		fact[0] = 1;
-		FOR(i, 1, n) fact[i] = 1ll * fact[i - 1] * i % MOD;
-
-		inv[n] = binPow(fact[n], MOD - 2);
-		FORD(i, n, 1) inv[i - 1] = 1ll * inv[i] * i % MOD;
-	}
-	int query(int n, int k){
-		if (k > n) return 0;
-		return 1ll * fact[n] * inv[k] % MOD * inv[n - k] % MOD;
-	}
+	return res;
 }
-
-namespace Lucas{
-	// Assume MOD is a prime number and n > MOD
-
-	int query(int n, int k){
-	    if (k > n) return 0;
-	    int res = 1;
-	    while (n > 0){
-	        res = 1LL * res * Standard_Combinatorics :: query(n % MOD, k % MOD) % MOD;
-	        n /= MOD; k /= MOD;
-	    }
-	    return res;
-	}
+void solve(int n){
+	Matrix A = fastPow(n - 1);
+	Matrix B(1, 2); B.mt[1][1] = B.mt[1][2] = 1;
+	Matrix C = B * A;
+	cout << C.mt[1][2] << el;
 }
-
 signed main(){
  	ios_base::sync_with_stdio(0);
 	cin.tie(0); cout.tie(0);
@@ -98,12 +78,15 @@ signed main(){
    		freopen(NAME".out", "w", stdout);
 	}
 
-	bool multiTest = 0;
+	process();
+
+	bool multiTest = 1;
 	int numTest = 1;
 
 	if (multiTest) cin >> numTest;
 	while(numTest--){
-		
+		int n; cin >> n;
+		solve(n);
 	}
 
 	cerr << "\nTime used: " << clock() << "ms\n";

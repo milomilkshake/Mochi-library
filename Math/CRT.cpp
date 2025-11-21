@@ -30,63 +30,36 @@ const ll INF = 1e17 + 7;
 const int inf = 1e9 + 7;
 const int MOD = 1e9 + 7;
 
-namespace smallN{
-	const int N = 1000 + 5;
-	int C[N][N];
+struct CRT{
+    int res;
 
-	void build(int n){
-		FOR(i, 0, n){
-			C[i][0] = 1;
-			FOR(j, 1, i - 1)
-				C[i][j] = (C[i - 1][j] + C[i - 1][j - 1]) % MOD;
-		}
-	}
-	int query(int n, int k){
-		if (k > n) return 0;
-		return C[n][k];
-	}
-}
+    CRT(){
+        res = 0, prd = 1;
+    }
+    
+    // Add condition: res % p == r
+    void add(int p, int r){
+        res += mul(r - res % p + p, euclid(prd, p).fi + p, p) * prd;
+        prd *= p;
+        if (res >= prd) res -= prd;
+    }
 
-namespace Standard_Combinatorics{
-	// Assume MOD is a prime number and n < MOD
-	// else use other methods (i.e. : Diophantine equation,..) to calculate inverse modulo
-
-	int fact[N], inv[N];
-
-	int binPow(int a, int b){
-		int ans = 1;
-		while(b > 0){
-			if (b & 1) ans = 1ll * ans * a % MOD;
-			a = 1ll * a * a % MOD; b >>= 1;
-		}
-		return ans;
-	}
-	void build(int n){
-		fact[0] = 1;
-		FOR(i, 1, n) fact[i] = 1ll * fact[i - 1] * i % MOD;
-
-		inv[n] = binPow(fact[n], MOD - 2);
-		FORD(i, n, 1) inv[i - 1] = 1ll * inv[i] * i % MOD;
-	}
-	int query(int n, int k){
-		if (k > n) return 0;
-		return 1ll * fact[n] * inv[k] % MOD * inv[n - k] % MOD;
-	}
-}
-
-namespace Lucas{
-	// Assume MOD is a prime number and n > MOD
-
-	int query(int n, int k){
-	    if (k > n) return 0;
-	    int res = 1;
-	    while (n > 0){
-	        res = 1LL * res * Standard_Combinatorics :: query(n % MOD, k % MOD) % MOD;
-	        n /= MOD; k /= MOD;
+	private:
+	    int prd;
+	    int mul(int a, int b, int p) {
+	        a %= p, b %= p;
+	        int q = (int) ((long double) a * b / p);
+	        int r = a * b - q * p;
+	        while (r < 0) r += p;
+	        while (r >= p) r -= p;
+	        return r;
 	    }
-	    return res;
-	}
-}
+	    pii euclid(int a, int b){
+	        if (!b) return make_pair(1, 0);
+	        pii r = euclid(b, a % b);
+	        return mp(r.se, r.fi - a / b * r.se);
+	    }
+};
 
 signed main(){
  	ios_base::sync_with_stdio(0);

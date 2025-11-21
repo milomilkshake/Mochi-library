@@ -30,61 +30,23 @@ const ll INF = 1e17 + 7;
 const int inf = 1e9 + 7;
 const int MOD = 1e9 + 7;
 
-namespace smallN{
-	const int N = 1000 + 5;
-	int C[N][N];
-
-	void build(int n){
-		FOR(i, 0, n){
-			C[i][0] = 1;
-			FOR(j, 1, i - 1)
-				C[i][j] = (C[i - 1][j] + C[i - 1][j - 1]) % MOD;
-		}
-	}
-	int query(int n, int k){
-		if (k > n) return 0;
-		return C[n][k];
-	}
-}
-
-namespace Standard_Combinatorics{
-	// Assume MOD is a prime number and n < MOD
-	// else use other methods (i.e. : Diophantine equation,..) to calculate inverse modulo
-
-	int fact[N], inv[N];
-
-	int binPow(int a, int b){
-		int ans = 1;
-		while(b > 0){
-			if (b & 1) ans = 1ll * ans * a % MOD;
-			a = 1ll * a * a % MOD; b >>= 1;
-		}
-		return ans;
-	}
-	void build(int n){
-		fact[0] = 1;
-		FOR(i, 1, n) fact[i] = 1ll * fact[i - 1] * i % MOD;
-
-		inv[n] = binPow(fact[n], MOD - 2);
-		FORD(i, n, 1) inv[i - 1] = 1ll * inv[i] * i % MOD;
-	}
-	int query(int n, int k){
-		if (k > n) return 0;
-		return 1ll * fact[n] * inv[k] % MOD * inv[n - k] % MOD;
-	}
-}
-
-namespace Lucas{
-	// Assume MOD is a prime number and n > MOD
-
-	int query(int n, int k){
-	    if (k > n) return 0;
-	    int res = 1;
-	    while (n > 0){
-	        res = 1LL * res * Standard_Combinatorics :: query(n % MOD, k % MOD) % MOD;
-	        n /= MOD; k /= MOD;
-	    }
-	    return res;
+namespace Modular_Inverse{
+	
+	/*
+		Nếu là MOD là số nguyên tố: a ^ (m - 2) đồng dư với a ^ (-1) mod MOD
+		Nếu MOD không là số nguyên tố nhưng a và m là số nguyên tố cùng nhau: 
+			Cách 1: a ^ (phi(m) - 1) đồng dư với a ^ (-1) mod MOD
+			Cách 2: giải phương trình a * x + MOD * y = 1 (dùng ext_gcd) -> nghiệm x của phương trình là nghịch đảo modulo của a
+		else: không có
+	*/
+	
+	// Với MOD <= 1e6
+	const int MOD = 1e6 + 7;
+	int inv_mod[MOD + 5]; // inv_mod[i] = i ^ (-1)
+	void build_array(){
+		inv_mod[1] = 1;
+		FOR(i, 2, MOD - 1)
+			inv_mod[i] = (MOD - (MOD / i) * inv_mod[MOD % i] % MOD) % MOD; 
 	}
 }
 
