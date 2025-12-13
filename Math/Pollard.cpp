@@ -32,47 +32,51 @@ const int MOD = 1e9 + 7;
 using ull = unsigned long long;
 using ld = long double;
 
-ll mult(ll x, ll y, ll mod) {
-    ull q = (ld)x * y / mod;
-    ll res = ((ull)x * y - q * mod);
-    if (res >= mod) res -= mod;
-    if (res < 0) res += mod;
+ll mult(ll x, ll y, ll md) {
+    ull q = (ld)x * y / md;
+    ll res = ((ull)x * y - q * md);
+    if (res >= md) res -= md;
+    if (res < 0) res += md;
     return res;
 }
 
-ll binPow(ll x, ll p, ll mod) {
+// Hàm tính lũy thừa nhanh
+ll powMod(ll x, ll p, ll md) {
     if (p == 0) return 1;
-    if (p & 1) return mult(x, binPow(x, p - 1, mod), mod);
-    return binPow(mult(x, x, mod), p / 2, mod);
+    if (p & 1) return mult(x, powMod(x, p - 1, md), md);
+    return powMod(mult(x, x, md), p / 2, md);
 }
 
-bool test(ll a, ll n, ll k, ll m){
-    ll MOD = binPow(a, m, n);
-    if (MOD == 1 || MOD == n - 1) return 1;
-    FOR(i, 1, k - 1){
-        MOD = (MOD * MOD) % n;
-        if (MOD == n - 1) return 1;
+// Thuật toán Rabin Miller hỗ trợ kiểm tra các số nguyên tố lớn
+bool checkMillerRabin(ll x, ll md, ll s, int k) {
+    x = powMod(x, s, md);
+    if (x == 1) return true;
+    while (k--) {
+        if (x == md - 1) return true;
+        x = mult(x, x, md);
+        if (x == 1) return false;
     }
-    return 0;
+    return false;
 }
 
+// Hàm kiểm tra nhanh một số có nguyên tố hay không
 bool isPrime(ll x) {
     if (x == 2 || x == 3 || x == 5 || x == 7) return true;
     if (x % 2 == 0 || x % 3 == 0 || x % 5 == 0 || x % 7 == 0) return false;
     if (x < 121) return x > 1;
-
-    ll s = x - 1; int k = 0;
+    ll s = x - 1;
+    int k = 0;
     while (s % 2 == 0) {
-        s >>= 1; k++;
+        s >>= 1;
+        k++;
     }
-
-    if (x < MASK(32)) {
+    if (x < 1LL << 32) {
         for (ll z : {2, 7, 61}) {
-            if (!test(z, x, s, k)) return false;
+            if (!checkMillerRabin(z, x, s, k)) return false;
         }
     } else {
         for (ll z : {2, 325, 9375, 28178, 450775, 9780504, 1795265022}) {
-            if (!test(z, x, s, k)) return false;
+            if (!checkMillerRabin(z, x, s, k)) return false;
         }
     }
     return true;
@@ -92,6 +96,7 @@ void pollard(ll x, vector<ll> &ans) {
     }
     ll c = 1;
     while (true) {
+        // Định nghĩa hàm f sử dụng cú pháp lambda function
         c = 1 + get_rand(x - 1);
         auto f = [&](ll y) {
             ll res = mult(y, y, x) + c;
@@ -102,6 +107,7 @@ void pollard(ll x, vector<ll> &ans) {
         int B = 100;
         int len = 1;
         ll g = 1;
+        // Sử dụng thuật cải tiến của Brent ở đây
         while (g == 1) {
             ll z = y;
             for (int i = 0; i < len; i++) {
@@ -134,6 +140,8 @@ void pollard(ll x, vector<ll> &ans) {
             }
             if (g == x) break;
             assert(g != 1);
+            // Thay vì kết thúc như thuật toán Brent,
+            // tiếp tục phân tích hai phần g và x / g
             pollard(g, ans);
             pollard(x / g, ans);
             return;
